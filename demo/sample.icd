@@ -21,7 +21,502 @@
 			</ConnectedAP>
 		</SubNetwork>
 	</Communication>
-	<IED name="TEMPLATE" manufacturer="Meinberg Funkuhren Gmbh &amp; Co. KG" configVersion="1.0" originalSclRelease="4" originalSclRevision="B" originalSclVersion="2007">
+	<IED name="M3000" manufacturer="Meinberg Funkuhren Gmbh &amp; Co. KG" configVersion="1.0" originalSclRelease="4" originalSclRevision="B" originalSclVersion="2007">
+		<Services nameLength="64">
+			<DynAssociation/>
+			<GetDirectory/>
+			<GetDataObjectDefinition/>
+			<DataObjectDirectory/>
+			<GetDataSetValue/>
+			<DataSetDirectory/>
+			<ConfDataSet modify="true" maxAttributes="50" max="50"/>
+			<DynDataSet maxAttributes="100" max="50"/>
+			<ReadWrite/>
+			<ConfReportControl max="2" bufConf="false"/>
+			<GetCBValues/>
+			<ReportSettings rptID="Dyn" optFields="Dyn" bufTime="Dyn" trgOps="Dyn" intgPd="Dyn" resvTms="true" owner="true" cbName="Conf" datSet="Dyn"/>
+			<LogSettings logEna="Dyn" trgOps="Dyn" intgPd="Dyn" cbName="Conf" datSet="Dyn"/>
+			<GSESettings appID="Conf" dataLabel="Conf" cbName="Conf" datSet="Conf"/>
+			<GOOSE max="0"/>
+			<FileHandling/>
+			<ConfLNs fixPrefix="true"/>
+			<ConfLdName/>
+			<ConfSigRef max="100"/>
+			<ValueHandling/>
+		</Services>
+		<AccessPoint name="AP1">
+			<Server>
+				<Authentication none="true"/>
+				<LDevice inst="LD1">
+					<LN0 lnType="IMS_lantimeLD1.LLN0" lnClass="LLN0" inst="">
+						<DataSet name="testDataset">
+							<FCDA ldInst="LD1" prefix="" lnClass="GGIO" lnInst="1" doName="Beh" fc="ST"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="GGIO" lnInst="1" doName="Ind1" fc="DC"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="GGIO" lnInst="1" doName="Ind1" fc="ST"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="GGIO" lnInst="1" doName="Ind2" fc="DC"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="GGIO" lnInst="1" doName="Ind2" fc="ST"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="GGIO" lnInst="1" doName="Ind3" fc="DC"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="GGIO" lnInst="1" doName="Ind3" fc="ST"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="GGIO" lnInst="1" doName="NamPlt" fc="DC"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="GGIO" lnInst="1" doName="NamPlt" fc="EX"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="GGIO" lnInst="1" doName="PhySlot" fc="DC"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="GGIO" lnInst="1" doName="PhySlot" fc="EX"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="GGIO" lnInst="1" doName="PhySlot" fc="SP"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="LLN0" doName="Beh" fc="ST"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="LLN0" doName="Health" fc="ST"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="LLN0" doName="Mod" fc="CF"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="LLN0" doName="Mod" fc="ST"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="LLN0" doName="NamPlt" fc="DC"/>
+							<FCDA ldInst="LD1" prefix="" lnClass="LLN0" doName="NamPlt" fc="EX"/>
+						</DataSet>
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="ldNs">
+								<Val>IEC 61850-7-4:2007B</Val>
+							</DAI>
+						</DOI>
+					</LN0>
+					<LN lnType="IMS_lantimeLD1.LPHD1" lnClass="LPHD" inst="1">
+						<DOI name="PhyNam">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.CALHAlm1" lnClass="CALH" inst="1">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>IEC 61850-7-4:2007B</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.CALHWrn1" lnClass="CALH" inst="2">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>IEC 61850-7-4:2007B</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.CALHInd1" lnClass="CALH" inst="3">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>IEC 61850-7-4:2007B</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LTMS1" lnClass="LTMS" inst="1"/>
+					<LN lnType="IMS_lantimeLD1.LTIM1" lnClass="LTIM" inst="1"/>
+					<LN lnType="IMS_lantimeLD1.LTPC1" lnClass="LTPC" inst="1">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="ClkPortRef">
+							<DAI name="setSrcRef">
+								<Val>LD1/LTPP1</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LTPC1" lnClass="LTPC" inst="2">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="ClkPortRef">
+							<DAI name="setSrcRef">
+								<Val>LD1/LTPP2</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LCCH1" lnClass="LCCH" inst="1">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortRef">
+							<DAI name="setSrcRef">
+								<Val>LD1/LPCP1</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LCCH1" lnClass="LCCH" inst="2">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortRef">
+							<DAI name="setSrcRef">
+								<Val>LD1/LPCP2</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LCCH1" lnClass="LCCH" inst="3">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortRef">
+							<DAI name="setSrcRef">
+								<Val>LD1/LPCP3</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LCCH1" lnClass="LCCH" inst="4">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortRef">
+							<DAI name="setSrcRef">
+								<Val>LD1/LPCP4</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LCCH1" lnClass="LCCH" inst="5">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortRef">
+							<DAI name="setSrcRef">
+								<Val>LD1/LPCP5</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LCCH2" lnClass="LCCH" inst="6">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortRef">
+							<DAI name="setSrcRef">
+								<Val>LD1/LPCP6</Val>
+							</DAI>
+						</DOI>
+						<DOI name="RedPortRef">
+							<DAI name="setSrcRef">
+								<Val>LD1/LPCP7</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LCCH2" lnClass="LCCH" inst="7">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortRef">
+							<DAI name="setSrcRef">
+								<Val>LD1/LPCP6</Val>
+							</DAI>
+						</DOI>
+						<DOI name="RedPortRef">
+							<DAI name="setSrcRef">
+								<Val>LD1/LPCP7</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LCCH1" lnClass="LCCH" inst="8">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortRef">
+							<DAI name="setSrcRef">
+								<Val>LD1/LPCP8</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LCCH1" lnClass="LCCH" inst="9">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortRef">
+							<DAI name="setSrcRef">
+								<Val>LD1/LPCP3</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LCCH1" lnClass="LCCH" inst="10">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortRef">
+							<DAI name="setSrcRef">
+								<Val>LD1/LPCP5</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LTPP1" lnClass="LTPP" inst="1">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortRef">
+							<DAI name="setSrcRef">
+								<Val>LD1/LPCP1</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LTPP1" lnClass="LTPP" inst="2">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortRef">
+							<DAI name="setSrcRef">
+								<Val>LD1/LPCP2</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LPCP1" lnClass="LPCP" inst="1">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PhySlot">
+							<DAI name="setVal">
+								<Val>esi1</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortNam">
+							<DAI name="setVal">
+								<Val>ptp0</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LPCP1" lnClass="LPCP" inst="2">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PhySlot">
+							<DAI name="setVal">
+								<Val>io1</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortNam">
+							<DAI name="setVal">
+								<Val>ptp1</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LPCP1" lnClass="LPCP" inst="3">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PhySlot">
+							<DAI name="setVal">
+								<Val>cpu-lan0</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortNam">
+							<DAI name="setVal">
+								<Val>lan0</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LPCP1" lnClass="LPCP" inst="4">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PhySlot">
+							<DAI name="setVal">
+								<Val>cpu-lan1</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortNam">
+							<DAI name="setVal">
+								<Val>lan1</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LPCP1" lnClass="LPCP" inst="5">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PhySlot">
+							<DAI name="setVal">
+								<Val>io4-0</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortNam">
+							<DAI name="setVal">
+								<Val>lan2</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LPCP1" lnClass="LPCP" inst="6">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PhySlot">
+							<DAI name="setVal">
+								<Val>io4-1</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortNam">
+							<DAI name="setVal">
+								<Val>lan3</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LPCP1" lnClass="LPCP" inst="7">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PhySlot">
+							<DAI name="setVal">
+								<Val>io4-2</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortNam">
+							<DAI name="setVal">
+								<Val>lan4</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.LPCP1" lnClass="LPCP" inst="8">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>(Tr)IEC 61850-90-4:2018A</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PhySlot">
+							<DAI name="setVal">
+								<Val>io4-3</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PortNam">
+							<DAI name="setVal">
+								<Val>lan5</Val>
+							</DAI>
+						</DOI>
+					</LN>
+					<LN lnType="IMS_lantimeLD1.REL10001" lnClass="GGIO" inst="1">
+						<DOI name="NamPlt">
+							<DAI name="vendor">
+								<Val>Meinberg Funkuhren GmbH &amp; Co. KG</Val>
+							</DAI>
+							<DAI name="lnNs">
+								<Val>IEC 61850-7-4:2007B</Val>
+							</DAI>
+						</DOI>
+						<DOI name="PhySlot">
+							<DAI name="setVal">
+								<Val>io6</Val>
+							</DAI>
+						</DOI>
+					</LN>
+				</LDevice>
+			</Server>
+		</AccessPoint>
+	</IED>
+	<IED name="M1000" manufacturer="Bad Pyrmont Funkuhren Gmbh &amp; Co. KG" configVersion="1.0" originalSclRelease="4" originalSclRevision="B" originalSclVersion="2007">
 		<Services nameLength="64">
 			<DynAssociation/>
 			<GetDirectory/>
