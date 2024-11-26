@@ -1,7 +1,8 @@
-import { LitElement, html } from 'lit';
+import { LitElement, html, css } from 'lit';
 import '@material/web/dialog/dialog.js';
 import '@material/web/list/list.js';
 import '@material/web/list/list-item.js';
+import '@material/web/button/text-button.js';
 
 /**
  * Pretty prints an XML document or a serialized XML string.
@@ -151,10 +152,21 @@ export default class MbgIcdExtractor extends LitElement {
           )}
         </md-list>
         <div slot="actions">
-          <md-text-button form="form" value="cancel">Cancel</md-text-button>
-          <md-text-button form="form" value="ok">OK</md-text-button>
+          <md-text-button
+            @click=${() => this.shadowRoot.querySelector('md-dialog').close()}
+            >Close</md-text-button
+          >
         </div>
       </md-dialog>
     `;
   }
+
+  static styles = css`
+    * {
+      --md-sys-color-surface-container-high: var(--oscd-base2);
+      --md-sys-color-surface: var(--oscd-base2);
+      --md-sys-color-on-surface: var(--oscd-base01);
+      --md-sys-color-primary: var(--oscd-primary);
+    }
+  `;
 }
