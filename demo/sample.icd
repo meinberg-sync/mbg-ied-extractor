@@ -7,7 +7,7 @@
 	</Header>
 	<Communication>
 		<SubNetwork name="NETCPU" type="8-MMS">
-			<ConnectedAP apName="AP1" iedName="TEMPLATE">
+			<ConnectedAP apName="AP1" iedName="M3000">
 				<Address>
 					<P type="IP">172.31.0.168</P>
 					<P type="OSI-AP-Title">1,3,9999,23</P>
