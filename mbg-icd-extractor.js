@@ -4,6 +4,58 @@ import '@material/web/list/list.js';
 import '@material/web/list/list-item.js';
 
 /**
+ * Pretty prints an XML document or a serialized XML string.
+ * @param {Document | string} input An XML document or a serialized XML string.
+ * @returns {string}
+ */
+function prettyPrintXML(input) {
+  let xmlString;
+
+  // If input is an XML document, serialize it to a string.
+  if (input instanceof Document) {
+    const serializer = new XMLSerializer();
+    xmlString = serializer.serializeToString(input);
+  } else if (typeof input === 'string') {
+    xmlString = input;
+  } else {
+    throw new Error(
+      'Input must be an XML Document or a serialized XML string.',
+    );
+  }
+
+  // Format the XML string.
+  const formatted = [];
+  const regex = /(<[^>]+>|[^<]+)/g; // Matches XML tags or text content.
+  const tab = '\t'; // Tab for indentation.
+  let level = 0;
+
+  // Break XML into individual parts (tags and text content).
+  xmlString.replace(regex, match => {
+    if (match.startsWith('</')) {
+      // Closing tag - decrease indentation level.
+      level -= 1;
+      formatted.push(`${tab.repeat(level)}${match}`);
+    } else if (match.startsWith('<') && match.endsWith('/>')) {
+      // Self-closing tag - no change in indentation.
+      formatted.push(`${tab.repeat(level)}${match}`);
+    } else if (match.startsWith('<')) {
+      // Opening tag - add tag and increase indentation level.
+      formatted.push(`${tab.repeat(level)}${match}`);
+      level += 1;
+    } else {
+      // Text content - preserve indentation at the current level.
+      const trimmedContent = match.trim();
+      if (trimmedContent) {
+        formatted.push(`${tab.repeat(level)}${trimmedContent}`);
+      }
+    }
+  });
+
+  // Join formatted lines with newlines.
+  return formatted.join('\n');
+}
+
+/**
  * Takes the IED requested by the user, extracts the Communication section and its contents from the parent file,
  * and a clone of this section with the relevant information.
  *
@@ -14,25 +66,18 @@ function extractCommunication(ied) {
   // fetch the Communication section from the parent file
   const comm = ied.ownerDocument.querySelector(':root>Communication');
 
-  // create an array of all ConnectedAP elements in the Communication section
-  const connAPs = Array.from(
+  // create an array of ConnectedAP elements NOT related to the requested IED.
+  const notConnAPs = Array.from(
     ied.ownerDocument.querySelectorAll(
-      `:root>Communication>SubNetwork>ConnectedAP[iedName="${ied.getAttribute('name')}"]`,
+      `:root>Communication>SubNetwork>ConnectedAP:not([iedName="${ied.getAttribute('name')}"])`,
     ),
   );
 
-  // for each ConnectedAP, clone its SubNetwork and append it to the Communication section
-  connAPs.forEach(connAP => {
-    const subnet = connAP.closest('SubNetwork');
-    let clonedSubnet = comm.querySelector(
-      `SubNetwork[name="${subnet.getAttribute('name')}"]`,
-    );
-    if (!clonedSubnet) {
-      clonedSubnet = subnet.cloneNode(false);
-      comm.appendChild(clonedSubnet);
-    }
-    const clonedConnAP = connAP.cloneNode(true);
-    clonedSubnet.appendChild(clonedConnAP);
+  // for each ConnectedAP that is NOT related to the requested IED, remove it and its subnetwork from the Communication section
+  notConnAPs.forEach(notConnAP => {
+    const subnet = notConnAP.closest('SubNetwork');
+    subnet.removeChild(notConnAP);
+    comm.removeChild(subnet);
   });
 
   return comm;
@@ -58,8 +103,8 @@ function extractIED(ied) {
     ied.ownerDocument.querySelector(':root>DataTypeTemplates')?.cloneNode(true),
   );
 
-  // TODO: wrap the XML doc with a pretty-printed version
-  return new XMLSerializer().serializeToString(doc);
+  // return the XML doc with a pretty-printed version
+  return prettyPrintXML(doc);
 }
 
 /**
