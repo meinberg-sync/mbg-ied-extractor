@@ -118,7 +118,7 @@ function downloadIED(ied) {
   const hiddenElement = document.createElement('a');
   hiddenElement.href = `data:application/xml,${encodeURI(extractIED(ied))}`;
   hiddenElement.target = '_blank';
-  hiddenElement.download = `${ied.getAttribute('name')}.xml`;
+  hiddenElement.download = `${ied.getAttribute('name')}.cid`;
   document.body.appendChild(hiddenElement);
   hiddenElement.click();
   document.body.removeChild(hiddenElement);
