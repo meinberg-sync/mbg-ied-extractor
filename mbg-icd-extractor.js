@@ -143,7 +143,7 @@ export default class MbgIcdExtractor extends LitElement {
         <div slot="headline">Choose the IED</div>
         <md-list slot="content">
           ${Array.from(
-            this.doc?.querySelectorAll('IED[manufacturer^="Meinberg"]'),
+            this.doc?.querySelectorAll('IED[manufacturer^="Meinberg"]') ?? [],
           ).map(
             ied =>
               html`<md-list-item type="button" @click=${() => downloadIED(ied)}
