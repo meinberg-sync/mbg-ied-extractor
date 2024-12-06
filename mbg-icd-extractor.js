@@ -28,7 +28,10 @@ function extractCommunication(ied) {
   notConnAPs.forEach(notConnAP => {
     const subnet = notConnAP.closest('SubNetwork');
     subnet.removeChild(notConnAP);
-    comm.removeChild(subnet);
+    // if the SubNetwork has no more ConnectedAP elements, remove it
+    if (!subnet.querySelector('ConnectedAP')) {
+      comm.removeChild(subnet);
+    }
   });
 
   return comm;
