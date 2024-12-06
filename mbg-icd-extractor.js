@@ -12,15 +12,9 @@ function meinbergFirst(a, b) {
   return 0;
 }
 
-/**
- * Takes the IED requested by the user, extracts the Communication section and its contents from the parent file,
- * and a clone of this section with the relevant information.
- *
- * @param {element} ied The <IED /> element from a ICD/CID/SCD file
- * @returns The <Communication /> element with all subnetworks related to the requested IED
- */
+/** Helper function to extract the communication details about the IED */
 function extractCommunication(ied) {
-  // fetch the Communication section from the parent file
+  // fetch the Communication section from the parent SCD file
   const comm = ied.ownerDocument.querySelector(':root>Communication');
 
   // create an array of ConnectedAP elements NOT related to the requested IED.
@@ -30,11 +24,10 @@ function extractCommunication(ied) {
     ),
   );
 
-  // for each ConnectedAP that is NOT related to the requested IED, remove it and its subnetwork from the Communication section
+  // filter out the elements that are not related to the requested IED
   notConnAPs.forEach(notConnAP => {
     const subnet = notConnAP.closest('SubNetwork');
     subnet.removeChild(notConnAP);
-    // if the SubNetwork has no more ConnectedAP elements, remove it
     if (!subnet.querySelector('ConnectedAP')) {
       comm.removeChild(subnet);
     }
@@ -43,12 +36,7 @@ function extractCommunication(ied) {
   return comm;
 }
 
-/**
- * Creates an XML document containing the requested IED element and its related information from the ICD/CID/SCD file
- *
- * @param {element} ied The <IED /> element from a ICD/CID/SCD file
- * @returns An XML document serialized as a string containing the requested IED
- */
+/** Helper function to create a doc with the IED and its related information */
 function extractIED(ied) {
   const doc = document.implementation.createDocument(
     'http://www.iec.ch/61850/2003/SCL',
@@ -65,12 +53,7 @@ function extractIED(ied) {
   return formatNewSCD(doc);
 }
 
-/**
- * Creates an XML document containing the requested IED element and its related information from the ICD/CID/SCD file,
- * and then downloads it to the user's device
- *
- * @param {element} ied The <IED /> element from a ICD/CID/SCD file
- */
+/** Helper function to download a CID file for the requested IED */
 function downloadIED(ied) {
   const hiddenElement = document.createElement('a');
   hiddenElement.href = `data:application/xml,${encodeURI(extractIED(ied))}`;
@@ -81,10 +64,7 @@ function downloadIED(ied) {
   document.body.removeChild(hiddenElement);
 }
 
-/**
- * This OpenSCD plugin allows the user to select which IED they want to extract from their SCD file.
- * After selection, the IED is extracted and downloaded to the user's device in an XML file.
- */
+/** Web Component to extract an IED and download it in a separate CID file */
 export default class MbgIcdExtractor extends LitElement {
   static properties = {
     doc: {},
