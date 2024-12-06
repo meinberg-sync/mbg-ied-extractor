@@ -1,60 +1,10 @@
 import { LitElement, html, css } from 'lit';
+import { formatNewSCD } from './mbg-format-scd.js';
+
 import '@material/web/dialog/dialog.js';
 import '@material/web/list/list.js';
 import '@material/web/list/list-item.js';
 import '@material/web/button/text-button.js';
-
-/**
- * Pretty prints an XML document or a serialized XML string.
- * @param {Document | string} input An XML document or a serialized XML string.
- * @returns {string}
- */
-function prettyPrintXML(input) {
-  let xmlString;
-
-  // If input is an XML document, serialize it to a string.
-  if (input instanceof Document) {
-    const serializer = new XMLSerializer();
-    xmlString = serializer.serializeToString(input);
-  } else if (typeof input === 'string') {
-    xmlString = input;
-  } else {
-    throw new Error(
-      'Input must be an XML Document or a serialized XML string.',
-    );
-  }
-
-  // Format the XML string.
-  const formatted = [];
-  const regex = /(<[^>]+>|[^<]+)/g; // Matches XML tags or text content.
-  const tab = '\t'; // Tab for indentation.
-  let level = 0;
-
-  // Break XML into individual parts (tags and text content).
-  xmlString.replace(regex, match => {
-    if (match.startsWith('</')) {
-      // Closing tag - decrease indentation level.
-      level -= 1;
-      formatted.push(`${tab.repeat(level)}${match}`);
-    } else if (match.startsWith('<') && match.endsWith('/>')) {
-      // Self-closing tag - no change in indentation.
-      formatted.push(`${tab.repeat(level)}${match}`);
-    } else if (match.startsWith('<')) {
-      // Opening tag - add tag and increase indentation level.
-      formatted.push(`${tab.repeat(level)}${match}`);
-      level += 1;
-    } else {
-      // Text content - preserve indentation at the current level.
-      const trimmedContent = match.trim();
-      if (trimmedContent) {
-        formatted.push(`${tab.repeat(level)}${trimmedContent}`);
-      }
-    }
-  });
-
-  // Join formatted lines with newlines.
-  return formatted.join('\n');
-}
 
 /**
  * Takes the IED requested by the user, extracts the Communication section and its contents from the parent file,
@@ -91,7 +41,6 @@ function extractCommunication(ied) {
  * @returns An XML document serialized as a string containing the requested IED
  */
 function extractIED(ied) {
-  // create a new XML document
   const doc = document.implementation.createDocument(
     'http://www.iec.ch/61850/2003/SCL',
     'SCL',
@@ -104,8 +53,7 @@ function extractIED(ied) {
     ied.ownerDocument.querySelector(':root>DataTypeTemplates')?.cloneNode(true),
   );
 
-  // return the XML doc with a pretty-printed version
-  return prettyPrintXML(doc);
+  return formatNewSCD(doc);
 }
 
 /**

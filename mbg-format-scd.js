@@ -1,0 +1,126 @@
+/** Helper function to identify escape XML entities in a string */
+function escapeXML(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+/** Helper function to ensure required SCL attributes are present */
+function ensureSCLAttributes(root) {
+  const predefinedSclAttributes = {
+    xmlns: 'http://www.iec.ch/61850/2003/SCL',
+    'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+    'xmlns:xsd': 'http://www.w3.org/2001/XMLSchema',
+    release: '4',
+    revision: 'B',
+    version: '2007',
+  };
+
+  for (const [attr, value] of Object.entries(predefinedSclAttributes)) {
+    if (!root.hasAttribute(attr)) {
+      root.setAttribute(attr, value);
+    }
+  }
+
+  return root;
+}
+
+/** Helper function to format attributes */
+function formatAttributes(element) {
+  return Array.from(element.attributes)
+    .map(attr => `${attr.name}="${escapeXML(attr.value)}"`)
+    .join(' ');
+}
+
+/** Helper function to recursively format tags */
+function formatNode(node, indentLevel = 0) {
+  const INDENT = '  ';
+  const indent = INDENT.repeat(indentLevel);
+
+  if (node.nodeType === Node.TEXT_NODE) {
+    const textContent = node.textContent.trim();
+    return textContent ? escapeXML(textContent) : null;
+  }
+
+  if (node.nodeType === Node.ELEMENT_NODE) {
+    const { tagName } = node;
+    const attributes = formatAttributes(node);
+    const children = Array.from(node.childNodes);
+
+    // Handle self-closing tags
+    if (children.length === 0) {
+      return attributes
+        ? `${indent}<${tagName} ${attributes}/>`
+        : `${indent}<${tagName}/>`;
+    }
+
+    // Check if element has a single text node with a value
+    if (
+      children.length === 1 &&
+      children[0].nodeType === Node.TEXT_NODE &&
+      children[0].textContent.trim()
+    ) {
+      const textContent = escapeXML(children[0].textContent.trim());
+      return attributes
+        ? `${indent}<${tagName} ${attributes}>${textContent}</${tagName}>`
+        : `${indent}<${tagName}>${textContent}</${tagName}>`;
+    }
+
+    // Otherwise, format opening tag, children, and closing tag
+    const openingTag = attributes
+      ? `${indent}<${tagName} ${attributes}>`
+      : `${indent}<${tagName}>`;
+    const closingTag = `${indent}</${tagName}>`;
+    const formattedChildren = children
+      .map(child => formatNode(child, indentLevel + 1))
+      .filter(child => child !== null)
+      .join('\n');
+    return `${openingTag}\n${formattedChildren}\n${closingTag}`;
+  }
+
+  return null;
+}
+
+/** Helper function to convert input to a Document if it is a string */
+function getDocument(input) {
+  let doc;
+
+  if (typeof input === 'string') {
+    // If it is a string, parse and check for errors
+    const parser = new DOMParser();
+    doc = parser.parseFromString(input, 'application/xml');
+    if (doc.getElementsByTagName('parsererror').length > 0) {
+      throw new Error('Invalid XML string provided.');
+    }
+  } else if (input instanceof Document) {
+    doc = input;
+  } else {
+    throw new Error('Input must be a valid XML string or Document.');
+  }
+
+  return doc;
+}
+
+/**
+ * Public helper function to fix formatting of a new SCD/CID/ICD document
+ * @param {string|Document} input The XML string or Document to be formatted
+ */
+export function formatNewSCD(input) {
+  const doc = getDocument(input);
+
+  // Ensure required attributes are set on the root SCL element
+  const root = ensureSCLAttributes(doc.documentElement);
+
+  // Start formatting from the document's root
+  const formatted = `${formatNode(root)}\n`;
+
+  // Prepend the XML declaration if it is missing
+  const xmlDeclaration = '<?xml version="1.0" encoding="utf-8"?>\n';
+  if (!formatted.startsWith(xmlDeclaration)) {
+    return xmlDeclaration + formatted;
+  }
+  return formatted;
+}
