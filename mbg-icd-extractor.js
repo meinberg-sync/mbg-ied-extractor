@@ -57,8 +57,13 @@ function extractIED(ied) {
 
 /** Helper function to download a CID file for the requested IED */
 function downloadIED(ied) {
+  // use blob to handle files of any size
+  const extractedIED = extractIED(ied);
+  const blob = new Blob([extractedIED], { type: 'application/xml' });
+  const blobURL = URL.createObjectURL(blob);
+
   const hiddenElement = document.createElement('a');
-  hiddenElement.href = `data:application/xml,${encodeURI(extractIED(ied))}`;
+  hiddenElement.href = blobURL;
   hiddenElement.target = '_blank';
   hiddenElement.download = `${ied.getAttribute('name')}.cid`;
   document.body.appendChild(hiddenElement);
