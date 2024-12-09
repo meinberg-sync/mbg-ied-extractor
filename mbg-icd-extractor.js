@@ -15,12 +15,14 @@ function meinbergFirst(a, b) {
 /** Helper function to extract the communication details about the IED */
 function extractCommunication(ied) {
   // fetch the Communication section from the parent SCD file
-  const comm = ied.ownerDocument.querySelector(':root>Communication');
+  const comm = ied.ownerDocument
+    .querySelector(':root>Communication')
+    ?.cloneNode(true);
 
   // create an array of ConnectedAP elements NOT related to the requested IED.
   const notConnAPs = Array.from(
-    ied.ownerDocument.querySelectorAll(
-      `:root>Communication>SubNetwork>ConnectedAP:not([iedName="${ied.getAttribute('name')}"])`,
+    comm.querySelectorAll(
+      `ConnectedAP:not([iedName="${ied.getAttribute('name')}"])`,
     ),
   );
 
