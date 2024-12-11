@@ -38,6 +38,94 @@ function extractCommunication(ied) {
   return comm;
 }
 
+/** Helper function to extract data type templates used by the IED */
+function extractTemplates(ied) {
+  const templates = ied.ownerDocument
+    .querySelector(':root>DataTypeTemplates')
+    ?.cloneNode(true);
+
+  const lnTypes = [];
+  Array.from(ied.querySelectorAll('LN0, LN')).forEach(ln => {
+    if (!lnTypes.includes(ln.getAttribute('lnType'))) {
+      lnTypes.push(ln.getAttribute('lnType'));
+    }
+  });
+
+  const doTypes = [];
+  lnTypes.forEach(ln => {
+    const lnType = templates.querySelector(`LNodeType[id="${ln}"]`);
+    if (lnType) {
+      Array.from(lnType.querySelectorAll('DO')).forEach(doType => {
+        if (!doTypes.includes(doType.getAttribute('type'))) {
+          doTypes.push(doType.getAttribute('type'));
+        }
+      });
+    }
+  });
+
+  const daTypes = [];
+  const sdoTypes = [];
+  doTypes.forEach(doType => {
+    const doTypeElement = templates.querySelector(`DOType[id="${doType}"]`);
+    if (doTypeElement) {
+      Array.from(doTypeElement.querySelectorAll('DA')).forEach(da => {
+        if (
+          da.getAttribute('type') &&
+          !daTypes.includes(da.getAttribute('type'))
+        ) {
+          daTypes.push(da.getAttribute('type'));
+        }
+      });
+
+      Array.from(doTypeElement.querySelectorAll('SDO')).forEach(sdo => {
+        if (
+          sdo.getAttribute('type') &&
+          !sdoTypes.includes(sdo.getAttribute('type')) &&
+          !doTypes.includes(sdo.getAttribute('type'))
+        ) {
+          sdoTypes.push(sdo.getAttribute('type'));
+        }
+      });
+    }
+  });
+
+  const bdaTypes = [];
+  daTypes.forEach(daType => {
+    const daTypeElement = templates.querySelector(`DAType[id="${daType}"]`);
+    if (daTypeElement) {
+      Array.from(daTypeElement.querySelectorAll('BDA')).forEach(bda => {
+        if (
+          bda.getAttribute('type') &&
+          !bdaTypes.includes(bda.getAttribute('type')) &&
+          !daTypes.includes(bda.getAttribute('type'))
+        ) {
+          bdaTypes.push(bda.getAttribute('type'));
+        }
+      });
+    }
+  });
+
+  // combine all found types into one array
+  const foundTypes = [
+    ...lnTypes,
+    ...doTypes,
+    ...sdoTypes,
+    ...daTypes,
+    ...bdaTypes,
+  ];
+
+  // remove all types not used by the requested IED
+  Array.from(
+    templates.querySelectorAll('LNodeType, DOType, DAType, EnumType'),
+  ).forEach(element => {
+    if (!foundTypes.includes(element.getAttribute('id'))) {
+      templates.removeChild(element);
+    }
+  });
+
+  return templates;
+}
+
 /** Helper function to create a doc with the IED and its related information */
 function extractIED(ied) {
   const doc = document.implementation.createDocument(
@@ -48,9 +136,7 @@ function extractIED(ied) {
   // append the requested IED and its related information
   doc.documentElement.appendChild(extractCommunication(ied));
   doc.documentElement.appendChild(ied.cloneNode(true));
-  doc.documentElement.appendChild(
-    ied.ownerDocument.querySelector(':root>DataTypeTemplates')?.cloneNode(true),
-  );
+  doc.documentElement.appendChild(extractTemplates(ied));
 
   return formatNewSCD(doc);
 }
