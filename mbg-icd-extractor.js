@@ -134,6 +134,9 @@ function extractIED(ied) {
   );
 
   // append the requested IED and its related information
+  doc.documentElement.appendChild(
+    ied.ownerDocument.querySelector(':root>Header')?.cloneNode(true),
+  );
   doc.documentElement.appendChild(extractCommunication(ied));
   doc.documentElement.appendChild(ied.cloneNode(true));
   doc.documentElement.appendChild(extractTemplates(ied));
