@@ -19,6 +19,11 @@ function extractCommunication(ied) {
     .querySelector(':root>Communication')
     ?.cloneNode(true);
 
+  // return if it does not exist
+  if (typeof comm === 'undefined') {
+    return comm;
+  }
+
   // create an array of ConnectedAP elements NOT related to the requested IED.
   const notConnAPs = Array.from(
     comm.querySelectorAll(
@@ -133,13 +138,25 @@ function extractIED(ied) {
     'SCL',
   );
 
-  // append the requested IED and its related information
-  doc.documentElement.appendChild(
-    ied.ownerDocument.querySelector(':root>Header')?.cloneNode(true),
-  );
-  doc.documentElement.appendChild(extractCommunication(ied));
-  doc.documentElement.appendChild(ied.cloneNode(true));
-  doc.documentElement.appendChild(extractTemplates(ied));
+  // extract the requested IED and its related information
+  const header = ied.ownerDocument
+    .querySelector(':root>Header')
+    ?.cloneNode(true);
+  const comm = extractCommunication(ied);
+  const iedElement = ied.cloneNode(true);
+  const templates = extractTemplates(ied);
+
+  // add elements to the new document
+  if (typeof header !== 'undefined') {
+    doc.documentElement.appendChild(header);
+  }
+  if (typeof comm !== 'undefined') {
+    doc.documentElement.appendChild(comm);
+  }
+  doc.documentElement.appendChild(iedElement);
+  if (typeof templates !== 'undefined') {
+    doc.documentElement.appendChild(templates);
+  }
 
   return formatNewSCD(doc);
 }
