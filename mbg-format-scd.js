@@ -8,26 +8,6 @@ function escapeXML(str) {
     .replace(/'/g, '&apos;');
 }
 
-/** Helper function to ensure required SCL attributes are present */
-function ensureSCLAttributes(root) {
-  const predefinedSclAttributes = {
-    xmlns: 'http://www.iec.ch/61850/2003/SCL',
-    'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-    'xmlns:xsd': 'http://www.w3.org/2001/XMLSchema',
-    release: '4',
-    revision: 'B',
-    version: '2007',
-  };
-
-  for (const [attr, value] of Object.entries(predefinedSclAttributes)) {
-    if (!root.hasAttribute(attr)) {
-      root.setAttribute(attr, value);
-    }
-  }
-
-  return root;
-}
-
 /** Helper function to format attributes */
 function formatAttributes(element) {
   return Array.from(element.attributes)
@@ -111,10 +91,8 @@ function getDocument(input) {
 export function formatNewSCD(input) {
   const doc = getDocument(input);
 
-  // Ensure required attributes are set on the root SCL element
-  const root = ensureSCLAttributes(doc.documentElement);
-
   // Start formatting from the document's root
+  const root = doc.documentElement;
   const formatted = `${formatNode(root)}\n`;
 
   // Prepend the XML declaration if it is missing

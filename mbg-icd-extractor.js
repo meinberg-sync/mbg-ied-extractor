@@ -12,6 +12,11 @@ function meinbergFirst(a, b) {
   return 0;
 }
 
+function cloneAttributes(destElement, sourceElement) {
+  const attributes = Array.prototype.slice.call(sourceElement.attributes);
+  attributes.forEach(attr => destElement.setAttribute(attr.name, attr.value));
+}
+
 /** Helper function to extract the communication details about the IED */
 function extractCommunication(ied) {
   // fetch the Communication section from the parent SCD file
@@ -137,6 +142,10 @@ function extractIED(ied) {
     'http://www.iec.ch/61850/2003/SCL',
     'SCL',
   );
+
+  // ensure schema revision and namespace definitions are transferred
+  const scl = ied.ownerDocument.documentElement;
+  cloneAttributes(doc.documentElement, scl);
 
   // extract the requested IED and its related information
   const header = ied.ownerDocument
