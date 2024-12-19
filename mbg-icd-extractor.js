@@ -48,6 +48,62 @@ function extractCommunication(ied) {
   return comm;
 }
 
+/* Helper function to recursively get all DA and nested BDA types */
+function getNestedEltsInDaTypes(templates, daTypeElement, allDATypes = []) {
+  const daTypeId = daTypeElement.getAttribute('id');
+  if (!allDATypes.includes(daTypeId)) {
+    allDATypes.push(daTypeId);
+  }
+  Array.from(daTypeElement.querySelectorAll('BDA')).forEach(bda => {
+    const bdaTypeId = bda.getAttribute('type');
+    if (bdaTypeId && !allDATypes.includes(bdaTypeId)) {
+      allDATypes.push(bdaTypeId);
+      const bdaTypeElement = templates.querySelector(
+        `DAType[id="${bdaTypeId}"]`,
+      );
+      if (bdaTypeElement) {
+        getNestedEltsInDaTypes(templates, bdaTypeElement, allDATypes);
+      }
+    }
+  });
+  return allDATypes;
+}
+
+/* Helper function to recursively get all DO and nested SDO and DA types */
+function getNestedEltsInDoTypes(
+  templates,
+  doTypeElement,
+  allDOTypes = [],
+  daTypes = [],
+) {
+  const doTypeId = doTypeElement.getAttribute('id');
+  if (!allDOTypes.includes(doTypeId)) {
+    allDOTypes.push(doTypeId);
+  }
+
+  Array.from(doTypeElement.querySelectorAll('DA')).forEach(da => {
+    const daTypeId = da.getAttribute('type');
+    if (daTypeId && !daTypes.includes(daTypeId)) {
+      daTypes.push(daTypeId);
+    }
+  });
+
+  Array.from(doTypeElement.querySelectorAll('SDO')).forEach(sdo => {
+    const sdoTypeId = sdo.getAttribute('type');
+    if (sdoTypeId && !allDOTypes.includes(sdoTypeId)) {
+      allDOTypes.push(sdoTypeId);
+      const sdoTypeElement = templates.querySelector(
+        `DOType[id="${sdoTypeId}"]`,
+      );
+      if (sdoTypeElement) {
+        getNestedEltsInDoTypes(templates, sdoTypeElement, allDOTypes, daTypes);
+      }
+    }
+  });
+
+  return [allDOTypes, daTypes];
+}
+
 /** Helper function to extract data type templates used by the IED */
 function extractTemplates(ied) {
   const templates = ied.ownerDocument
@@ -61,68 +117,36 @@ function extractTemplates(ied) {
     }
   });
 
+  // get the initial list of DO types
   const doTypes = [];
+  const daTypes = [];
   lnTypes.forEach(ln => {
     const lnType = templates.querySelector(`LNodeType[id="${ln}"]`);
     if (lnType) {
       Array.from(lnType.querySelectorAll('DO')).forEach(doType => {
-        if (!doTypes.includes(doType.getAttribute('type'))) {
-          doTypes.push(doType.getAttribute('type'));
+        const doTypeId = doType.getAttribute('type');
+        if (!doTypes.includes(doTypeId)) {
+          const doTypeElement = templates.querySelector(
+            `DOType[id="${doTypeId}"]`,
+          );
+          if (doTypeElement) {
+            // find all nested DA and SDO types in each DO type
+            getNestedEltsInDoTypes(templates, doTypeElement, doTypes, daTypes);
+          }
         }
       });
     }
   });
 
-  const daTypes = [];
-  const sdoTypes = [];
-  doTypes.forEach(doType => {
-    const doTypeElement = templates.querySelector(`DOType[id="${doType}"]`);
-    if (doTypeElement) {
-      Array.from(doTypeElement.querySelectorAll('DA')).forEach(da => {
-        if (
-          da.getAttribute('type') &&
-          !daTypes.includes(da.getAttribute('type'))
-        ) {
-          daTypes.push(da.getAttribute('type'));
-        }
-      });
-
-      Array.from(doTypeElement.querySelectorAll('SDO')).forEach(sdo => {
-        if (
-          sdo.getAttribute('type') &&
-          !sdoTypes.includes(sdo.getAttribute('type')) &&
-          !doTypes.includes(sdo.getAttribute('type'))
-        ) {
-          sdoTypes.push(sdo.getAttribute('type'));
-        }
-      });
-    }
-  });
-
-  const bdaTypes = [];
   daTypes.forEach(daType => {
     const daTypeElement = templates.querySelector(`DAType[id="${daType}"]`);
     if (daTypeElement) {
-      Array.from(daTypeElement.querySelectorAll('BDA')).forEach(bda => {
-        if (
-          bda.getAttribute('type') &&
-          !bdaTypes.includes(bda.getAttribute('type')) &&
-          !daTypes.includes(bda.getAttribute('type'))
-        ) {
-          bdaTypes.push(bda.getAttribute('type'));
-        }
-      });
+      getNestedEltsInDaTypes(templates, daTypeElement, daTypes);
     }
   });
 
   // combine all found types into one array
-  const foundTypes = [
-    ...lnTypes,
-    ...doTypes,
-    ...sdoTypes,
-    ...daTypes,
-    ...bdaTypes,
-  ];
+  const foundTypes = [...lnTypes, ...doTypes, ...daTypes];
 
   // remove all types not used by the requested IED
   Array.from(
