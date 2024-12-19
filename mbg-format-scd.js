@@ -8,6 +8,12 @@ function escapeXML(str) {
     .replace(/'/g, '&apos;');
 }
 
+/* Helper function to normalize CDATA content */
+function normalizeCDATA(content) {
+  // Replace CRLF (\r\n) and CR (\r) with LF (\n)
+  return content.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+}
+
 /** Helper function to format attributes */
 function formatAttributes(element) {
   return Array.from(element.attributes)
@@ -25,10 +31,30 @@ function formatNode(node, indentLevel = 0) {
     return textContent ? escapeXML(textContent) : null;
   }
 
+  if (node.nodeType === Node.CDATA_SECTION_NODE) {
+    const content = normalizeCDATA(node.nodeValue);
+    return `${indent}<![CDATA[${content}]]>`;
+  }
+
   if (node.nodeType === Node.ELEMENT_NODE) {
     const { tagName } = node;
     const attributes = formatAttributes(node);
     const children = Array.from(node.childNodes);
+
+    // Special handling for <Private> tags with CDATA content
+    if (
+      tagName === 'Private' &&
+      children.some(child => child.nodeType === Node.CDATA_SECTION_NODE)
+    ) {
+      const openingTag = attributes
+        ? `${indent}<${tagName} ${attributes}>`
+        : `${indent}<${tagName}>`;
+      const cdataNode = children.find(
+        child => child.nodeType === Node.CDATA_SECTION_NODE,
+      );
+      const cdataContent = formatNode(cdataNode, indentLevel + 1);
+      return `${openingTag}\n${cdataContent}\n${indent}</${tagName}>`;
+    }
 
     // Handle self-closing tags
     if (children.length === 0) {
