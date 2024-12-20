@@ -5,6 +5,7 @@ import '@material/web/dialog/dialog.js';
 import '@material/web/list/list.js';
 import '@material/web/list/list-item.js';
 import '@material/web/button/text-button.js';
+import '@material/web/radio/radio.js';
 
 function meinbergFirst(a, b) {
   if (a.toLowerCase().startsWith('meinberg')) return -1;
@@ -195,7 +196,7 @@ function extractIED(ied) {
 }
 
 /** Helper function to download a CID file for the requested IED */
-function downloadIED(ied) {
+function downloadIED(ied, extensionType) {
   // use blob to handle files of any size
   const extractedIED = extractIED(ied);
   const blob = new Blob([extractedIED], { type: 'application/xml' });
@@ -204,7 +205,7 @@ function downloadIED(ied) {
   const hiddenElement = document.createElement('a');
   hiddenElement.href = blobURL;
   hiddenElement.target = '_blank';
-  hiddenElement.download = `${ied.getAttribute('name')}.cid`;
+  hiddenElement.download = `${ied.getAttribute('name')}${extensionType}`;
   document.body.appendChild(hiddenElement);
   hiddenElement.click();
   document.body.removeChild(hiddenElement);
@@ -214,10 +215,25 @@ function downloadIED(ied) {
 export default class MbgIcdExtractor extends LitElement {
   static properties = {
     doc: {},
+    extensionType: { type: String },
   };
+
+  constructor() {
+    super();
+    // set default extension type
+    this.extensionType = '.cid';
+  }
 
   run() {
     this.shadowRoot.querySelector('md-dialog').show();
+  }
+
+  _handleRadioChange(e) {
+    const selectedRadio = e.target;
+    if (selectedRadio) {
+      const extensionType = selectedRadio.getAttribute('value');
+      this.extensionType = extensionType;
+    }
   }
 
   render() {
@@ -244,7 +260,7 @@ export default class MbgIcdExtractor extends LitElement {
                   ied => html`
                     <md-list-item
                       type="button"
-                      @click=${() => downloadIED(ied)}
+                      @click=${() => downloadIED(ied, this.extensionType)}
                     >
                       ${ied.getAttribute('name')}
                     </md-list-item>
@@ -254,7 +270,37 @@ export default class MbgIcdExtractor extends LitElement {
             `,
           )}
         </md-list>
-        <div slot="actions">
+
+        <div slot="actions" class="actions">
+          <form
+            id="file-extension"
+            slot="content"
+            method="dialog"
+            @change=${this._handleRadioChange}
+          >
+            <md-radio
+              name="extension"
+              value=".cid"
+              aria-label="CID"
+              touch-target="wrapper"
+              checked
+            ></md-radio>
+            <label aria-hidden="true">CID</label>
+            <md-radio
+              name="extension"
+              value=".icd"
+              aria-label="ICD"
+              touch-target="wrapper"
+            ></md-radio>
+            <label aria-hidden="true">ICD</label>
+            <md-radio
+              name="extension"
+              value=".iid"
+              aria-label="IID"
+              touch-target="wrapper"
+            ></md-radio>
+            <label aria-hidden="true">IID</label>
+          </form>
           <md-text-button
             @click=${() => this.shadowRoot.querySelector('md-dialog').close()}
             >Close</md-text-button
@@ -269,11 +315,33 @@ export default class MbgIcdExtractor extends LitElement {
       --md-sys-color-surface-container-high: var(--oscd-base2);
       --md-sys-color-surface: var(--oscd-base2);
       --md-sys-color-on-surface: var(--oscd-base01);
+      --md-sys-color-on-surface-variant: var(--oscd-base01);
       --md-sys-color-primary: var(--oscd-primary);
     }
 
     div.manufacturer {
       color: var(--oscd-base00);
+    }
+
+    div.actions {
+      display: flex;
+      flex-flow: column;
+    }
+
+    #file-extension {
+      display: flex;
+      align-self: center;
+      align-items: center;
+      margin-bottom: auto;
+    }
+
+    #file-extension > md-radio:first-of-type {
+      margin-left: auto;
+    }
+
+    label {
+      font-family: var(--oscd-theme-text-font);
+      color: var(--oscd-base01);
     }
   `;
 }
