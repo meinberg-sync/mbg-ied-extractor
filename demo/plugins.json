@@ -20,12 +20,11 @@
       "src": "https://openenergytools.github.io/scl-editor/plugins/oscd-save/oscd-save.js"
     },
     {
-      "name": "Extract ICD",
+      "name": "Extract IED",
       "icon": "code",
       "active": true,
       "requireDoc": true,
-      "src": "../mbg-icd-extractor.js",
-      "TODO": "Needs to be implemented to fetch ICD from SCD file"
+      "src": "../mbg-icd-extractor.js"
     },
     {
       "name": "Validating",
@@ -60,13 +59,6 @@
       "src": "https://openenergytools.github.io/scl-editor/plugins/scl-editor-landing/scl-editor-landing.js"
     },
     {
-      "name": "Publisher",
-      "icon": "publish",
-      "active": true,
-      "requireDoc": true,
-      "src": "https://openenergytools.github.io/scl-editor/plugins/oscd-publisher/oscd-publisher.js"
-    },
-    {
       "name": "Communication",
       "icon": "settings_ethernet",
       "active": true,
@@ -78,8 +70,7 @@
       "icon": "edit",
       "active": true,
       "requireDoc": true,
-      "src": "https://openenergytools.github.io/scl-editor/plugins/scl-ied-editor/scl-ied-editor.js",
-      "TODO": "Needs to be reimplemented from legacy OpenSCD to allow editing; current version is display only"
+      "src": "https://meinberg-sync.github.io/mbg-ied-editor/mbg-ied-editor.js"
     }
   ]
 }
