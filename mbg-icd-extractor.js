@@ -216,6 +216,7 @@ export default class MbgIcdExtractor extends LitElement {
   static properties = {
     doc: {},
     extensionType: { type: String },
+    editCount: { type: Number },
   };
 
   constructor() {
