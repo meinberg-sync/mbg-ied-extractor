@@ -19,10 +19,10 @@ for (const [name, value] of params) {
 
 editor.plugins = plugins;
 
-const sclText = await fetch('sample.icd').then(r => r.text())
-editor.docs['sample.icd'] =
+const sclText = await fetch('sample-ieds.scd').then(r => r.text())
+editor.docs['sample-ieds.scd'] =
   new DOMParser().parseFromString(sclText, 'application/xml');
-editor.docName = 'sample.icd';
+editor.docName = 'sample-ieds.scd';
 </script>
 
 <script>
@@ -48,17 +48,17 @@ window.customElements.define = (name, cl, conf) => {
     --oscd-theme-base1: #B2B2B2;
     --oscd-theme-base2: #EDEDED;
     --oscd-theme-base3: #F6F6F6;
-    
+
     --oscd-theme-text-font: 'Roboto';
     --oscd-theme-icon-font: "Material Symbols Outlined";
-  
+
     --primary: var(--oscd-theme-primary);
     --secondary: var(--oscd-theme-secondary);
-  
+
     margin: 0px;
     padding: 0px;
   }
-  
+
   abbr {
     text-decoration: none;
     border-bottom: none;
