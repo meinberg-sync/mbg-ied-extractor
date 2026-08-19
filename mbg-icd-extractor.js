@@ -257,16 +257,20 @@ export default class MbgIcdExtractor extends LitElement {
             manufacturer => html`
               <md-list-group>
                 <div slot="headline" class="manufacturer">${manufacturer}</div>
-                ${iedsByManufacturer[manufacturer].map(
-                  ied => html`
+                ${iedsByManufacturer[manufacturer].map(ied => {
+                  const description = ied.getAttribute('desc');
+                  return html`
                     <md-list-item
                       type="button"
                       @click=${() => downloadIED(ied, this.extensionType)}
                     >
-                      ${ied.getAttribute('name')}
+                      <div slot="headline">${ied.getAttribute('name')}</div>
+                      ${description
+                        ? html`<div slot="supporting-text">${description}</div>`
+                        : ''}
                     </md-list-item>
-                  `,
-                )}
+                  `;
+                })}
               </md-list-group>
             `,
           )}
