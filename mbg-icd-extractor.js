@@ -215,6 +215,7 @@ function downloadIED(ied, extensionType) {
 export default class MbgIcdExtractor extends LitElement {
   static properties = {
     doc: {},
+    selectedIED: { type: Object },
     extensionType: { type: String },
     editCount: { type: Number },
   };
@@ -227,6 +228,16 @@ export default class MbgIcdExtractor extends LitElement {
 
   run() {
     this.shadowRoot.querySelector('md-dialog').show();
+  }
+
+  _handleIedSelection(e) {
+    const selectedRadio = e.target;
+    if (selectedRadio) {
+      const iedName = selectedRadio.getAttribute('value');
+      this.selectedIED = this.doc?.querySelector(
+        `:root > IED[name="${iedName}"]`,
+      );
+    }
   }
 
   _handleRadioChange(e) {
@@ -251,30 +262,40 @@ export default class MbgIcdExtractor extends LitElement {
 
     return html`
       <md-dialog>
-        <div slot="headline">Choose the IED</div>
-        <md-list slot="content">
+        <div slot="headline">IED Extractor</div>
+        <form slot="content">
           ${manufacturers.map(
             manufacturer => html`
-              <md-list-group>
+              <div>
                 <div slot="headline" class="manufacturer">${manufacturer}</div>
                 ${iedsByManufacturer[manufacturer].map(ied => {
                   const description = ied.getAttribute('desc');
                   return html`
-                    <md-list-item
-                      type="button"
-                      @click=${() => downloadIED(ied, this.extensionType)}
-                    >
-                      <div slot="headline">${ied.getAttribute('name')}</div>
-                      ${description
-                        ? html`<div slot="supporting-text">${description}</div>`
-                        : ''}
-                    </md-list-item>
+                    <label class="ied-option">
+                      <md-radio
+                        name="ied"
+                        value="${ied.getAttribute('name')}"
+                        aria-label="${ied.getAttribute('name')}"
+                        touch-target="wrapper"
+                        @change=${this._handleIedSelection}
+                      ></md-radio>
+                      <span class="ied-text">
+                        <span class="ied-name"
+                          >${ied.getAttribute('name')}</span
+                        >
+                        ${description
+                          ? html`<span class="ied-description"
+                              >${description}</span
+                            >`
+                          : ''}
+                      </span>
+                    </label>
                   `;
                 })}
-              </md-list-group>
+              </div>
             `,
           )}
-        </md-list>
+        </form>
 
         <div slot="actions" class="actions">
           <form
@@ -306,10 +327,18 @@ export default class MbgIcdExtractor extends LitElement {
             ></md-radio>
             <label aria-hidden="true">IID</label>
           </form>
-          <md-text-button
-            @click=${() => this.shadowRoot.querySelector('md-dialog').close()}
-            >Close</md-text-button
-          >
+          <div class="action-buttons">
+            <md-text-button
+              ?disabled=${!this.selectedIED}
+              @click=${() => downloadIED(this.selectedIED, this.extensionType)}
+              >Download</md-text-button
+            >
+            <md-text-button
+              class="close-extractor"
+              @click=${() => this.shadowRoot.querySelector('md-dialog').close()}
+              >Close</md-text-button
+            >
+          </div>
         </div>
       </md-dialog>
     `;
@@ -344,9 +373,41 @@ export default class MbgIcdExtractor extends LitElement {
       margin-left: auto;
     }
 
+    .ied-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0.5rem 0;
+      cursor: pointer;
+    }
+
+    .ied-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .ied-name {
+      font-size: 16px;
+    }
+
+    .ied-description {
+      color: var(--oscd-base00);
+      font-size: 12px;
+    }
+
     label {
       font-family: var(--oscd-theme-text-font);
       color: var(--oscd-base01);
+    }
+
+    .action-buttons {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .close-extractor {
+      --md-sys-color-primary: var(--md-sys-color-error, red);
     }
   `;
 }
