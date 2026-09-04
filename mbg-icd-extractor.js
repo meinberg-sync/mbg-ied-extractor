@@ -1,9 +1,11 @@
 import { LitElement, html, css } from 'lit';
 import { formatNewSCD } from './mbg-format-scd.js';
+import { RULES, SEVERITY_LABELS } from './mbg-validate-scl.js';
 
 import '@material/web/dialog/dialog.js';
 import '@material/web/list/list.js';
 import '@material/web/list/list-item.js';
+import '@material/web/button/outlined-button.js';
 import '@material/web/button/text-button.js';
 import '@material/web/radio/radio.js';
 
@@ -218,16 +220,31 @@ export default class MbgIcdExtractor extends LitElement {
     selectedIED: { type: Object },
     extensionType: { type: String },
     editCount: { type: Number },
+    showValidationRules: { type: Boolean },
   };
 
   constructor() {
     super();
     // set default extension type
     this.extensionType = '.cid';
+    // set default validation rules visibility
+    this.showValidationRules = false;
   }
 
   run() {
     this.shadowRoot.querySelector('md-dialog').show();
+  }
+
+  displayValidationRules() {
+    this.showValidationRules = !this.showValidationRules;
+
+    // toggle Download button
+    const downloadButton = this.shadowRoot.querySelector('.download-ied');
+    if (downloadButton) {
+      downloadButton.style.display = this.showValidationRules
+        ? 'none'
+        : 'block';
+    }
   }
 
   _handleIedSelection(e) {
@@ -240,11 +257,10 @@ export default class MbgIcdExtractor extends LitElement {
     }
   }
 
-  _handleRadioChange(e) {
-    const selectedRadio = e.target;
-    if (selectedRadio) {
-      const extensionType = selectedRadio.getAttribute('value');
-      this.extensionType = extensionType;
+  _handleExtensionSelection(e) {
+    const selectedButton = e.currentTarget;
+    if (selectedButton) {
+      this.extensionType = selectedButton.getAttribute('value');
     }
   }
 
@@ -261,75 +277,125 @@ export default class MbgIcdExtractor extends LitElement {
     const manufacturers = Object.keys(iedsByManufacturer).sort(meinbergFirst);
 
     return html`
-      <md-dialog>
-        <div slot="headline">IED Extractor</div>
-        <form slot="content">
-          ${manufacturers.map(
-            manufacturer => html`
-              <div>
-                <div slot="headline" class="manufacturer">${manufacturer}</div>
-                ${iedsByManufacturer[manufacturer].map(ied => {
-                  const description = ied.getAttribute('desc');
-                  return html`
-                    <label class="ied-option">
-                      <md-radio
-                        name="ied"
-                        value="${ied.getAttribute('name')}"
-                        aria-label="${ied.getAttribute('name')}"
-                        touch-target="wrapper"
-                        @change=${this._handleIedSelection}
-                      ></md-radio>
-                      <span class="ied-text">
-                        <span class="ied-name"
-                          >${ied.getAttribute('name')}</span
-                        >
-                        ${description
-                          ? html`<span class="ied-description"
-                              >${description}</span
-                            >`
-                          : ''}
-                      </span>
-                    </label>
-                  `;
-                })}
+      <md-dialog class="ied-extractor">
+        <div slot="headline" class="headline">
+          IED Extractor
+          <md-text-button
+            id="validation-rules"
+            @click=${this.displayValidationRules}
+            >${this.showValidationRules
+              ? 'Back'
+              : 'Validation Rules'}</md-text-button
+          >
+        </div>
+
+        ${this.showValidationRules
+          ? html`
+              <div slot="content" class="validation-rules">
+                <ul class="validation-rules-list">
+                  ${RULES[this.extensionType].map(
+                    rule => html`
+                      <li class="rule-card">
+                        <div class="rule-header">
+                          <span class="rule-id">${rule.id}</span>
+                          <span class="rule-title">${rule.title}</span>
+                          <span class="rule-severity ${rule.severity}"
+                            >${SEVERITY_LABELS[rule.severity]}</span
+                          >
+                        </div>
+                        <p class="rule-why">${rule.why}</p>
+                        <div class="rule-meta">${rule.element}</div>
+                      </li>
+                    `,
+                  )}
+                </ul>
               </div>
-            `,
-          )}
-        </form>
+            `
+          : html`
+              <form slot="content">
+                ${manufacturers.map(
+                  manufacturer => html`
+                    <div>
+                      <div slot="headline" class="manufacturer">
+                        ${manufacturer}
+                      </div>
+                      ${iedsByManufacturer[manufacturer].map(ied => {
+                        const description = ied.getAttribute('desc');
+                        return html`
+                          <label class="ied-option">
+                            <md-radio
+                              name="ied"
+                              value="${ied.getAttribute('name')}"
+                              aria-label="${ied.getAttribute('name')}"
+                              touch-target="wrapper"
+                              @change=${this._handleIedSelection}
+                            ></md-radio>
+                            <span class="ied-text">
+                              <span class="ied-name"
+                                >${ied.getAttribute('name')}</span
+                              >
+                              ${description
+                                ? html`<span class="ied-description"
+                                    >${description}</span
+                                  >`
+                                : ''}
+                            </span>
+                          </label>
+                        `;
+                      })}
+                    </div>
+                  `,
+                )}
+              </form>
+            `}
 
         <div slot="actions" class="actions">
+          <p>Select a file extension:</p>
           <form
             id="file-extension"
             slot="content"
-            method="dialog"
-            @change=${this._handleRadioChange}
+            role="group"
+            aria-label="Export file extension"
           >
-            <md-radio
+            <md-outlined-button
+              class=${this.extensionType === '.cid' ? 'selected' : ''}
+              type="button"
               name="extension"
               value=".cid"
               aria-label="CID"
+              aria-pressed=${this.extensionType === '.cid'}
               touch-target="wrapper"
-              checked
-            ></md-radio>
-            <label aria-hidden="true">CID</label>
-            <md-radio
+              @click=${this._handleExtensionSelection}
+              >CID</md-outlined-button
+            >
+            <md-outlined-button
+              class=${this.extensionType === '.icd' ? 'selected' : ''}
+              type="button"
               name="extension"
               value=".icd"
               aria-label="ICD"
+              aria-pressed=${this.extensionType === '.icd'}
               touch-target="wrapper"
-            ></md-radio>
-            <label aria-hidden="true">ICD</label>
-            <md-radio
+              @click=${this._handleExtensionSelection}
+              >ICD</md-outlined-button
+            >
+            <md-outlined-button
+              class=${this.extensionType === '.iid' ? 'selected' : ''}
+              type="button"
               name="extension"
               value=".iid"
               aria-label="IID"
+              aria-pressed=${this.extensionType === '.iid'}
               touch-target="wrapper"
-            ></md-radio>
-            <label aria-hidden="true">IID</label>
+              @click=${this._handleExtensionSelection}
+              >IID</md-outlined-button
+            >
           </form>
           <div class="action-buttons">
             <md-text-button
+              class="download-ied"
               ?disabled=${!this.selectedIED}
+              ?hidden=${this.showValidationRules}
               @click=${() => downloadIED(this.selectedIED, this.extensionType)}
               >Download</md-text-button
             >
@@ -351,6 +417,20 @@ export default class MbgIcdExtractor extends LitElement {
       --md-sys-color-on-surface: var(--oscd-base01);
       --md-sys-color-on-surface-variant: var(--oscd-base01);
       --md-sys-color-primary: var(--oscd-primary);
+
+      --md-dialog-container-shape: 16px;
+
+      --md-text-button-container-shape: 8px;
+      --md-text-button-container-height: 32px;
+
+      --md-outlined-button-label-text-color: var(--md-sys-color-on-surface);
+
+      --mbg-ied-warning-color: #9a6700;
+    }
+
+    .ied-extractor {
+      width: 100%;
+      max-width: 560px;
     }
 
     div.manufacturer {
@@ -362,15 +442,37 @@ export default class MbgIcdExtractor extends LitElement {
       flex-flow: column;
     }
 
-    #file-extension {
-      display: flex;
-      align-self: center;
-      align-items: center;
+    .actions p {
+      margin-top: auto;
       margin-bottom: auto;
+      font: 14px var(--oscd-text-font);
+      color: var(--oscd-base00);
     }
 
-    #file-extension > md-radio:first-of-type {
-      margin-left: auto;
+    #validation-rules {
+      --md-text-button-leading-space: 6px;
+      --md-text-button-trailing-space: 6px;
+      --md-text-button-container-shape: 6px;
+      --md-text-button-container-height: auto;
+      --md-text-button-label-text-weight: 400;
+    }
+
+    #file-extension {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      margin-bottom: auto;
+      gap: 8px;
+    }
+
+    #file-extension > md-outlined-button {
+      flex: 1;
+    }
+
+    #file-extension > md-outlined-button.selected {
+      --md-outlined-button-label-text-color: var(--md-sys-color-primary);
+      --md-outlined-button-outline-color: var(--md-sys-color-primary);
+      --md-outlined-button-outline-width: 2px;
     }
 
     .ied-option {
@@ -401,9 +503,82 @@ export default class MbgIcdExtractor extends LitElement {
       color: var(--oscd-base01);
     }
 
+    .headline,
     .action-buttons {
       display: flex;
       justify-content: space-between;
+    }
+
+    .validation-rules-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .rule-card {
+      border-radius: 12px;
+      padding: 12px 16px;
+      background: color-mix(in srgb, var(--oscd-base01) 6%, transparent);
+    }
+
+    .rule-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rule-id {
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--oscd-base00);
+    }
+
+    .rule-title {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--oscd-base01);
+    }
+
+    .rule-severity {
+      flex-shrink: 0;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .rule-severity.error {
+      color: var(--md-sys-color-error, #c62828);
+      background: color-mix(
+        in srgb,
+        var(--md-sys-color-error, #c62828) 15%,
+        transparent
+      );
+    }
+
+    .rule-severity.warning {
+      color: var(--mbg-ied-warning-color);
+      background: color-mix(
+        in srgb,
+        var(--mbg-ied-warning-color) 15%,
+        transparent
+      );
+    }
+
+    .rule-why {
+      margin: 6px 0 4px;
+      font-size: 13px;
+      line-height: 1.4;
+      color: var(--oscd-base01);
+    }
+
+    .rule-meta {
+      font-size: 10px;
+      color: var(--oscd-base00);
     }
 
     .close-extractor {
