@@ -1,3 +1,12 @@
+function hasVersionAndRevision(doc) {
+  const header = doc.querySelector(':root > Header');
+  return (
+    !!header &&
+    header.hasAttribute('version') &&
+    header.hasAttribute('revision')
+  );
+}
+
 export const RULES = {
   '.icd': [
     {
@@ -6,6 +15,8 @@ export const RULES = {
       element: 'IED@name',
       title: 'IED name must be TEMPLATE',
       why: 'An ICD describes a device type, not an installed instance. The reserved name marks it as unbound.',
+      check: doc =>
+        doc.querySelector(':root > IED')?.getAttribute('name') === 'TEMPLATE',
     },
     {
       id: 'ICD-02',
@@ -13,6 +24,7 @@ export const RULES = {
       element: 'SCL',
       title: 'Exactly one IED element',
       why: 'A type description covers a single device. Extraction always produces one, so this is a guard against hand edits.',
+      check: doc => doc.querySelectorAll(':root > IED').length === 1,
     },
     {
       id: 'ICD-03',
@@ -20,6 +32,7 @@ export const RULES = {
       element: 'Header',
       title: 'Header carries version and revision',
       why: 'The configurator uses these to detect when a vendor ships an updated type.',
+      check: hasVersionAndRevision,
     },
     {
       id: 'ICD-04',
@@ -27,6 +40,7 @@ export const RULES = {
       element: 'DataTypeTemplates',
       title: 'DataTypeTemplates section present',
       why: 'Without the type definitions the file describes nothing a configurator can instantiate.',
+      check: doc => !!doc.querySelector(':root > DataTypeTemplates'),
     },
     {
       id: 'ICD-05',
@@ -34,6 +48,12 @@ export const RULES = {
       element: 'Process, Line, Substation',
       title: 'Process/Line/Substation top-level name must be TEMPLATE',
       why: 'A functional topology section is optional in a type file, but when included its highest-level name marks it as a template rather than a project-specific single line diagram.',
+      check: doc =>
+        Array.from(
+          doc.querySelectorAll(
+            ':root > Process, :root > Line, :root > Substation',
+          ),
+        ).every(section => section.getAttribute('name') === 'TEMPLATE'),
     },
     {
       id: 'ICD-06',
@@ -50,6 +70,7 @@ export const RULES = {
       title:
         'LN-to-equipment bindings must match the intended process topology',
       why: 'When a process TEMPLATE is defined, each bound logical node must be compatible with the equipment type it references (e.g. a CSWI bound to a CBR controls a circuit breaker; a CILO bound to a line disconnector implements its interlocking logic).',
+      // TODO: Requires a logical-node-to-equipment-type compatibility table
     },
   ],
   '.iid': [
@@ -59,6 +80,7 @@ export const RULES = {
       element: 'SCL',
       title: 'Exactly one IED element',
       why: 'An IID carries the instantiated configuration of one device being returned to the system configurator.',
+      check: doc => doc.querySelectorAll(':root > IED').length === 1,
     },
     {
       id: 'IID-02',
@@ -66,6 +88,8 @@ export const RULES = {
       element: 'IED@name',
       title: 'IED name must not be TEMPLATE',
       why: 'An instance file needs the project name assigned by the system configurator.',
+      check: doc =>
+        doc.querySelector(':root > IED')?.getAttribute('name') !== 'TEMPLATE',
     },
     {
       id: 'IID-03',
@@ -73,6 +97,7 @@ export const RULES = {
       element: 'Header@id',
       title: 'Header ID is present',
       why: 'The system configurator matches the returned instance back to the project by this identifier.',
+      check: doc => !!doc.querySelector(':root > Header')?.getAttribute('id'),
     },
     {
       id: 'IID-04',
@@ -80,6 +105,7 @@ export const RULES = {
       element: 'Header',
       title: 'Header carries version and revision',
       why: 'Lets the configurator tell which round trip a returned instance came from.',
+      check: hasVersionAndRevision,
     },
     {
       id: 'IID-05',
@@ -119,6 +145,7 @@ export const RULES = {
       element: 'SCL',
       title: 'Exactly one IED element',
       why: 'A CID configures one physical device for download.',
+      check: doc => doc.querySelectorAll(':root > IED').length === 1,
     },
     {
       id: 'CID-02',
@@ -126,6 +153,12 @@ export const RULES = {
       element: 'Communication',
       title: 'ConnectedAP for this IED',
       why: 'The device cannot be commissioned without its own access point in the Communication section.',
+      check: doc => {
+        const iedName = doc.querySelector(':root > IED')?.getAttribute('name');
+        return !!doc.querySelector(
+          `:root > Communication ConnectedAP[iedName="${iedName}"]`,
+        );
+      },
     },
     {
       id: 'CID-03',
@@ -133,6 +166,8 @@ export const RULES = {
       element: 'IED@name',
       title: 'IED name must not be TEMPLATE',
       why: 'A configured device carries its project name, never the reserved type name.',
+      check: doc =>
+        doc.querySelector(':root > IED')?.getAttribute('name') !== 'TEMPLATE',
     },
     {
       id: 'CID-04',
@@ -140,6 +175,10 @@ export const RULES = {
       element: 'Substation',
       title: 'Substation section names must be project-specific if present',
       why: 'A Substation section related to this IED is optional, but when included its names must reflect the actual project rather than the TEMPLATE placeholder used in type files.',
+      check: doc =>
+        Array.from(doc.querySelectorAll(':root > Substation')).every(
+          substation => substation.getAttribute('name') !== 'TEMPLATE',
+        ),
     },
     {
       id: 'CID-05',
@@ -147,6 +186,7 @@ export const RULES = {
       element: 'Header',
       title: 'Header carries version and revision',
       why: 'Commissioning records need to state which configuration revision went onto the device.',
+      check: hasVersionAndRevision,
     },
     {
       id: 'CID-06',
@@ -176,3 +216,27 @@ export const SEVERITY_LABELS = {
   error: 'blocking',
   warning: 'warning',
 };
+
+export function validateSCL(xml, fileType) {
+  const doc = new DOMParser().parseFromString(xml, 'application/xml');
+
+  if (doc.querySelector('parsererror')) {
+    return [
+      {
+        id: 'XML-01',
+        severity: 'error',
+        title: 'The generated file is not valid XML',
+        passed: false,
+      },
+    ];
+  }
+
+  return (RULES[fileType] ?? [])
+    .filter(rule => typeof rule.check === 'function')
+    .map(rule => ({
+      id: rule.id,
+      severity: rule.severity,
+      title: rule.title,
+      passed: rule.check(doc),
+    }));
+}
