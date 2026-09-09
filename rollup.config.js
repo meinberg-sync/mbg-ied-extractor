@@ -6,7 +6,7 @@ import { generateSW } from 'rollup-plugin-workbox';
 import path from 'path';
 
 export default {
-  input: 'mbg-icd-extractor.js',
+  input: 'src/mbg-ied-extractor.js',
   output: {
     format: 'es',
     dir: 'dist',

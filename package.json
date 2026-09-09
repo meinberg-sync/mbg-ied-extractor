@@ -1,8 +1,8 @@
 {
-  "name": "mbg-icd-extractor",
-  "description": "Webcomponent mbg-icd-extractor following open-wc recommendations",
+  "name": "mbg-ied-extractor",
+  "description": "Meinberg's IED Extractor for OpenSCD",
   "license": "MIT",
-  "author": "mbg-icd-extractor",
+  "author": "Axel Perales",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
