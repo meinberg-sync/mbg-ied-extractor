@@ -1,12 +1,12 @@
 import { html } from 'lit';
 import { fixture, expect } from '@open-wc/testing';
 
-import '../mbg-icd-extractor.js';
+import '../src/mbg-ied-extractor.js';
 
-describe('MbgIcdExtractor', () => {
+describe('MbgIedExtractor', () => {
   let element;
   beforeEach(async () => {
-    element = await fixture(html`<mbg-icd-extractor></mbg-icd-extractor>`);
+    element = await fixture(html`<mbg-ied-extractor></mbg-ied-extractor>`);
   });
 
   it('renders a h1', () => {

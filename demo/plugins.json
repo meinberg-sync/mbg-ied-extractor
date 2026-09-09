@@ -24,7 +24,7 @@
       "icon": "code",
       "active": true,
       "requireDoc": true,
-      "src": "../mbg-icd-extractor.js"
+      "src": "../src/mbg-ied-extractor.js"
     },
     {
       "name": "Validating",

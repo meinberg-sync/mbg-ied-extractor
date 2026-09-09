@@ -69,7 +69,7 @@ function groupIedsByManufacturer(doc) {
 }
 
 /** Web Component to extract an IED and download it in a separate CID file */
-export default class MbgIcdExtractor extends LitElement {
+export default class MbgIedExtractor extends LitElement {
   static properties = {
     doc: {},
     selectedIED: { type: Object },
